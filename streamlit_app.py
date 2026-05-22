@@ -89,9 +89,12 @@ with tab_prediction:
             values = [jumlah_spm, revisi_dipa, deviasi_rpd_persen, skor_ikpa] + tipe_vector
             table = Orange.data.Table.from_list(model.domain, [values])
             prediction = model(table)
-            predicted_class = int(prediction[0])
 
-            st.success(f"Hasil prediksi: {predicted_class}")
+            predicted_index = int(prediction[0])
+            class_values = list(model.domain.class_var.values)
+            predicted_label = class_values[predicted_index] if 0 <= predicted_index < len(class_values) else str(predicted_index)
+
+            st.success(f"Hasil prediksi: {predicted_label}")
         except FileNotFoundError:
             st.error("File model tidak ditemukan di folder model. Pastikan Best_model.pkcls ada.")
         except ImportError:
