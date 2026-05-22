@@ -1,2 +1,2 @@
 streamlit
-Orange3
+Orange3==3.40.0
