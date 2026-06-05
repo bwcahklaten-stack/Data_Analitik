@@ -23,9 +23,28 @@ DATA_PATH = "Data/02_realisasi_anggaran_klasifikasi.csv"
 MODEL_PATH = "model/Best_model.pkcls"
 
 st.markdown("""
+<style>
+    .block-container { padding-top: 1.4rem; padding-bottom: 2rem; }
+    h1 { color: #0f172a; letter-spacing: -0.03em; }
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
+    .stTabs [data-baseweb="tab"] {
+        height: 42px; padding: 0 14px; border-radius: 10px; background: #f1f5f9; color: #0f172a;
+    }
+    .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; }
+    .card {
+        border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem; background: linear-gradient(180deg, #ffffff, #f8fbff);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .tiny-note { color: #475569; font-size: 0.92rem; }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
 # Dashboard Analitik DJPb
 **Visualisasi interaktif untuk analisis realisasi anggaran dan prediksi klasifikasi satker.**
 """)
+
+st.caption("Platform monitoring performa satker berbasis data realisasi anggaran, skor IKPA, dan deviasi RPD.")
 
 data = load_data(DATA_PATH)
 
@@ -66,6 +85,7 @@ tab_overview, tab_analytics, tab_prediction = st.tabs(["Overview", "Analytics", 
 
 with tab_overview:
     st.subheader("Ringkasan Data")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Satker", f"{len(filtered_data):,}")
     col2.metric("Rata-rata Skor IKPA", f"{filtered_data['skor_ikpa'].mean():.2f}")
@@ -74,6 +94,7 @@ with tab_overview:
         filtered_data["realisasi_tercapai_95persen"].value_counts(normalize=True).get("Ya", 0) * 100
     )
     col4.metric("Tercapai 95%", f"{percent_tercapai:.1f}%")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.subheader("Tabel Data Terfilter")
@@ -118,6 +139,7 @@ with tab_overview:
 
 with tab_analytics:
     st.subheader("Analisis Distribusi dan Tren")
+    st.caption("Gunakan panel ini untuk melihat pola distribusi, komposisi belanja, dan tren realisasi TW3.")
     col1, col2 = st.columns(2)
 
     hist = (
@@ -157,7 +179,8 @@ with tab_analytics:
 
 with tab_prediction:
     st.subheader("Prediksi Klasifikasi Satker")
-    st.write("Gunakan model klasifikasi DJPb untuk memprediksi label berdasarkan fitur dan tipe satker.")
+    st.caption("Masukkan nilai fitur utama untuk mendapatkan prediksi klasifikasi satker berbasis model Orange3.")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
     with st.form(key="prediction_form"):
         col1, col2 = st.columns(2)
@@ -221,8 +244,7 @@ with tab_prediction:
             table = Orange.data.Table.from_list(model.domain, [values])
             prediction = model(table)
             predicted_index = int(prediction[0])
-            class_values = list(model.domain.class_var.values)
-            predicted_label = class_values[predicted_index] if 0 <= predicted_index < len(class_values) else str(predicted_index)
+            predicted_label = "Ya" if predicted_index == 1 else "Tidak"
 
             st.success(f"Hasil prediksi: {predicted_label}")
             st.info("Hasil prediksi didasarkan pada model Orange3 yang dilatih pada data satker.")
@@ -233,5 +255,6 @@ with tab_prediction:
         except Exception as exc:
             st.error(f"Gagal memuat model atau melakukan prediksi: {exc}")
 
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown("---")
     st.caption("Catatan: Jika tombol prediksi tidak bekerja, periksa apakah file model dan library Orange3 sudah tersedia.")
